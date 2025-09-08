@@ -18,7 +18,7 @@ int main(int argc, char *argv[]){
         if (c_pid==0)
             execvp(args[0],args);
         else if (c_pid<0)
-            printf("epic fail\n");
+            printf("upsi\n");
         else{
             int status;
             waitpid(c_pid,&status,0);
