@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define io_green "\x1b[32m"
+#define io_reset "\x1b[0m"
+
 int c_pid;
 char cwd[1024];
 char buffer[1024];
@@ -11,8 +14,10 @@ int main(int argc, char *argv[]){
     while (1){
         //prompt
         getcwd(cwd, sizeof(cwd));
+        write(1, io_green, sizeof(io_green));
         write(1, cwd, strlen(cwd));
         write(1, "> ", 3);
+        write(1, io_reset, sizeof(io_reset));
 
         //read input
         ssize_t n = read(0, buffer, 1024);
