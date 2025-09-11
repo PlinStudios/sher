@@ -1,7 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <stdlib.h>
 #include <string.h>
 
 int c_pid;
@@ -12,7 +11,6 @@ int main(int argc, char *argv[]){
     while (1){
         //prompt
         getcwd(cwd, sizeof(cwd));
-        //printf("%s> ",cwd);
         write(1, cwd, strlen(cwd));
         write(1, "> ", 3);
 
@@ -21,13 +19,18 @@ int main(int argc, char *argv[]){
         if (n<=0) continue;
         buffer[n]='\0';
 
-        char *args[3];
+        //parse
+        char *args[64];
+        int i=0;
         args[0] = strtok(buffer," \n");
-        args[1] = strtok(NULL," \n");
-        args[2] = NULL;//strtok(NULL," \n");
+        while (args[i]!=NULL && i<63)
+        {
+            i++;
+            args[i] = strtok(NULL," \n");
+        }
+        args[i]=NULL;
 
         //exec command
-        printf(">%s %s %s<",args[0],args[1],args[2]);
         if (strcmp(args[0],"cd") == 0)
             chdir(args[1]);
         else if (strcmp(args[0],"exit") == 0)
@@ -37,7 +40,7 @@ int main(int argc, char *argv[]){
             if (c_pid==0)
                 execvp(args[0],args);
             else if (c_pid<0)
-                printf("upsi\n");
+                write(2, "error", strlen("error"));
             else{
                 int status;
                 waitpid(c_pid,&status,0);
