@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define io_red "\x1b[31m"
 #define io_green "\x1b[32m"
 #define io_reset "\x1b[0m"
 
@@ -11,6 +12,7 @@ char cwd[1024];
 char buffer[1024];
 
 int main(int argc, char *argv[]){
+    write(2, io_red, sizeof(io_red));
     while (1){
         //prompt
         getcwd(cwd, sizeof(cwd));
@@ -21,7 +23,7 @@ int main(int argc, char *argv[]){
 
         //read input
         ssize_t n = read(0, buffer, 1024);
-        if (n<=0) continue;
+        if (n<=1) continue;
         buffer[n]='\0';
 
         //parse
@@ -42,10 +44,12 @@ int main(int argc, char *argv[]){
             exit(0);
         else{
             c_pid = fork();
-            if (c_pid==0)
-                execvp(args[0],args);
+            if (c_pid==0){
+                char a = execvp(args[0],args);
+                write(2, io_red"error: non existent command\n", strlen(io_red"error: non existent command\n"));
+            }
             else if (c_pid<0)
-                write(2, "error", strlen("error"));
+                write(2, io_red"error: can't create process\n", strlen(io_red"error: can't create process\n"));
             else{
                 int status;
                 waitpid(c_pid,&status,0);
