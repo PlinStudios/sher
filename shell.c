@@ -9,7 +9,17 @@
 
 int c_pid;
 char cwd[1024];
-char buffer[1024];
+
+/*Encargado de dividir en 2 la string, el primer comando antes del pipes y el resto de la string
+Devuelve 1 en caso de tener pipe, 0 si no tiene
+1er arg: La string que hay que dividir
+2do arg: Array de 2 casillas para strings, que almacena las 2 partes*/
+int dividirPipe(char* String, char** StringConPipes){
+    StringConPipes[0] = strtok(String, "|");
+    StringConPipes[1] = strtok(NULL, "");
+    if (StringConPipes[1] == NULL) return 0;
+    else return 1;
+}
 
 int main(int argc, char *argv[]){
     write(2, io_red, sizeof(io_red));
@@ -21,10 +31,25 @@ int main(int argc, char *argv[]){
         write(1, "> ", 3);
         write(1, io_reset, sizeof(io_reset));
 
-        //read input
-        ssize_t n = read(0, buffer, 1024);
+        //Lectura de Input
+        //Deja en el puntero buffer la string que contiene todo el input del usuario
+        //long long int size almacena el tamaño de la string total
+        long long int size = 0;
+        char*buffer = (char *)malloc(1024 * sizeof(char));
+        ssize_t n = read(0, buffer, 1023);
         if (n<=1) continue;
-        buffer[n]='\0';
+        size+=n;
+        while (n==1023){
+            buffer[size]='\0';
+            char*temp = (char *)malloc((1024+size) * sizeof(char));
+            strcpy(temp,buffer);
+            free(buffer);
+            buffer=temp;
+            n = read(0,buffer+size,1023);
+            size+=n;
+            if (n<0) exit(0);
+        }
+        buffer[size]='\0';
 
         //parse
         char *args[64];
