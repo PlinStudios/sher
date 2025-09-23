@@ -7,6 +7,8 @@
 #define io_green "\x1b[32m"
 #define io_reset "\x1b[0m"
 
+#define BUFFER_SIZE 64
+
 int c_pid;
 char cwd[1024];
 
@@ -35,19 +37,15 @@ int main(int argc, char *argv[]){
         //Deja en el puntero buffer la string que contiene todo el input del usuario
         //long long int size almacena el tamaño de la string total
         long long int size = 0;
-        char*buffer = (char *)malloc(1024 * sizeof(char));
-        ssize_t n = read(0, buffer, 1023);
+        char*buffer = (char *)malloc(BUFFER_SIZE * sizeof(char));
+        ssize_t n = read(0, buffer, BUFFER_SIZE-1);
         if (n<=1) continue;
         size+=n;
-        while (n==1023){
-            buffer[size]='\0';
-            char*temp = (char *)malloc((1024+size) * sizeof(char));
-            strcpy(temp,buffer);
-            free(buffer);
-            buffer=temp;
-            n = read(0,buffer+size,1023);
+        while (n==BUFFER_SIZE-1 && buffer[size-1]!='\n'){
+            buffer = realloc(buffer, (size + BUFFER_SIZE) * sizeof(char));
+            n = read(0,buffer+size,BUFFER_SIZE-1);
             size+=n;
-            if (n<0) exit(0);
+            if (n<=0) break;
         }
         buffer[size]='\0';
 
