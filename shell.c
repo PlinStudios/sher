@@ -70,6 +70,7 @@ int main(int argc, char *argv[]){
             if (c_pid==0){
                 char a = execvp(args[0],args);
                 write(2, io_red"error: non existent command\n", strlen(io_red"error: non existent command\n"));
+                exit(0);
             }
             else if (c_pid<0)
                 write(2, io_red"error: can't create process\n", strlen(io_red"error: can't create process\n"));
