@@ -8,6 +8,7 @@
 #define io_reset "\x1b[0m"
 
 #define BUFFER_SIZE 64
+#define COMMAND_BUFFER_SIZE 4
 
 int c_pid;
 char cwd[1024];
@@ -50,13 +51,16 @@ int main(int argc, char *argv[]){
         buffer[size]='\0';
 
         //parse
-        char *args[64];
+        char **args = (char **)malloc(COMMAND_BUFFER_SIZE * sizeof(char *));
         int i=0;
         args[0] = strtok(buffer," \n");
-        while (args[i]!=NULL && i<63)
+        while (args[i]!=NULL)
         {
             i++;
             args[i] = strtok(NULL," \n");
+
+            if (i%COMMAND_BUFFER_SIZE == COMMAND_BUFFER_SIZE-1)
+            args = realloc(args, (i+COMMAND_BUFFER_SIZE+1) * sizeof(char *));
         }
         args[i]=NULL;
 
