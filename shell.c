@@ -26,6 +26,35 @@ int dividirPipe(char* String, char** StringConPipes){
     if (StringConPipes[1] == NULL) return 0;
     else return 1;
 }
+char** parse(char*buffer, int* n){
+    char** args = malloc(COMMAND_BUFFER_SIZE * sizeof(char*));
+    if (!args) {
+        write(2,"malloc failed",sizeof("malloc failed"));
+        return NULL;
+    }
+    int i=0;
+    args[0] = strtok(buffer," \n");
+    while (args[i]!=NULL){
+        i++;
+        if (i%COMMAND_BUFFER_SIZE == COMMAND_BUFFER_SIZE-1){
+            char** new_args = realloc(args, (i + COMMAND_BUFFER_SIZE) * sizeof(char*));
+            if (!new_args) {
+                free(args);
+                write(2,"realloc failed",sizeof("realloc failed"));
+                return NULL;
+            }
+            args = new_args;
+        }
+        args[i] = strtok(NULL," \n");
+    }
+    if(n) *n=i;
+    return args;
+}
+
+//Llamar a esta función antes de continuar con el loop
+void free_args(char** args) {
+    if (args) free(args);
+}
 
 int main(int argc, char *argv[]){
     write(2, io_red, sizeof(io_red));
@@ -54,18 +83,8 @@ int main(int argc, char *argv[]){
         buffer[size]='\0';
 
         //parse
-        char **args = (char **)malloc(COMMAND_BUFFER_SIZE * sizeof(char *));
         int i=0;
-        args[0] = strtok(buffer," \n");
-        while (args[i]!=NULL)
-        {
-            i++;
-            args[i] = strtok(NULL," \n");
-
-            if (i%COMMAND_BUFFER_SIZE == COMMAND_BUFFER_SIZE-1)
-            args = realloc(args, (i+COMMAND_BUFFER_SIZE+1) * sizeof(char *));
-        }
-        args[i]=NULL;
+        char **args = parse(buffer, &i);
 
         //exec command
         if (strcmp(args[0],"cd") == 0)
@@ -91,7 +110,6 @@ int main(int argc, char *argv[]){
     }
 }
 
-/*
 void ejecutarPipe(char** comando, char** comandoPostPipe){
     //pipefd[0] es para leer, [1] es para escribir
     int pipefd[2]; 
@@ -112,7 +130,7 @@ void ejecutarPipe(char** comando, char** comandoPostPipe){
         close(pipefd[0]); // Este proceso no leera datos, solo los escribira
         dup2(pipefd[1], STDOUT_FILENO);
         close(pipefd[1]); // Una vez duplicado el file descriptor, no necesitamos escribir nada mas
-        execvp(parsed[0], parsed);
+        execvp(comando[0], comando);
         //Si es que el codigo continua aqui, es que el execvp no se realizó correctamente
         char* error_Comando_WriteP = io_red"error: Could not execute pipe command (write)\n";
         write(2, error_Comando_WriteP, strlen(error_Comando_WriteP));
@@ -135,8 +153,8 @@ void ejecutarPipe(char** comando, char** comandoPostPipe){
 
             /*NOTA: Para tener pipes "ilimitados", deberiamos llamar nuevamente a la función ejecutarPipe, pero
             parseando correctamente a la string para ver si es que es necesario usar pipes o este es el ultimo comando*/
-/*
-            execvp(parsed[0], parsed);
+
+            execvp(comandoPostPipe[0], comandoPostPipe);
             //Si es que el codigo continua aqui, es que el execvp no se realizó correctamente
             char* error_Comando_ReadP = io_red"error: Could not execute pipe command (read)\n";
             write(2, error_Comando_ReadP, strlen(error_Comando_ReadP));
@@ -151,4 +169,4 @@ void ejecutarPipe(char** comando, char** comandoPostPipe){
 
     }
 
-}*/
+}
