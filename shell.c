@@ -85,3 +85,65 @@ int main(int argc, char *argv[]){
         }
     }
 }
+
+
+void ejecutarPipe(char** comando, char** comandoPostPipe){
+    //pipefd[0] es para leer, [1] es para escribir
+    int pipefd[2]; 
+    pid_t pWrite, pRead;
+    if (pipe(pipefd)<0){
+        char* errorNoPipe = io_red"error: Pipe couldn not be initialized\n";
+        write(2, errorNoPipe, strlen(errorNoPipe));
+        return;
+    }
+    pWrite = fork();
+    if (pWrite<0){
+        char* error_NoFork_WriteP = io_red"error: Could not fork main process\n";
+        write(2, error_NoFork_WriteP, strlen(error_NoFork_WriteP));
+        return;
+    }
+    if (pWrite==0){
+        //Proceso hijo, ejecutara el comando correspondiente
+        close(pipefd[0]); // Este proceso no leera datos, solo los escribira
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]); // Una vez duplicado el file descriptor, no necesitamos escribir nada mas
+        execvp(parsed[0], parsed);
+        //Si es que el codigo continua aqui, es que el execvp no se realizó correctamente
+        char* error_Comando_WriteP = io_red"error: Could not execute pipe command (write)\n";
+        write(2, error_Comando_WriteP, strlen(error_Comando_WriteP));
+    } 
+    else 
+    {
+        //Proceso padre, creara un nuevo hijo para que lea el resultado del anterior
+        pRead = fork();
+        if (pRead<0){
+            char* error_NoFork_ReadP = io_red"error: Could not fork pipe process\n";
+            write(2, error_NoFork_ReadP, strlen(error_NoFork_ReadP));
+            return;
+        }
+        if (pRead==0){
+
+            //Proceso hijo, ejecutara el comando correspondiente
+            close(pipefd[1]); // Este proceso no escribira datos, solo los leera
+            dup2(pipefd[0], STDIN_FILENO);
+            close(pipefd[0]); // Una vez duplicado el file descriptor, no necesitamos escribir nada mas
+
+            /*NOTA: Para tener pipes "ilimitados", deberiamos llamar nuevamente a la función ejecutarPipe, pero
+            parseando correctamente a la string para ver si es que es necesario usar pipes o este es el ultimo comando*/
+
+            execvp(parsed[0], parsed);
+            //Si es que el codigo continua aqui, es que el execvp no se realizó correctamente
+            char* error_Comando_ReadP = io_red"error: Could not execute pipe command (read)\n";
+            write(2, error_Comando_ReadP, strlen(error_Comando_ReadP));
+
+        } else {
+            close(pipefd[0]);
+            close(pipefd[1]);
+            wait(NULL);
+            wait(NULL);
+
+        }
+
+    }
+
+}
