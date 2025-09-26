@@ -4,7 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "myprof.c"
+#include "miprof.c"
 
 #define io_red "\x1b[31m"
 #define io_green "\x1b[32m"
@@ -91,8 +91,8 @@ int main(int argc, char *argv[]){
             chdir(args[1]);
         else if (strcmp(args[0],"exit") == 0)
             exit(0);
-        else if (strcmp(args[0],"myprof") == 0)
-            myprof(i,args);
+        else if (strcmp(args[0],"miprof") == 0)
+            miprof(i,args);
         else{
             c_pid = fork();
             if (c_pid==0){
