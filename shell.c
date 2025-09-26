@@ -2,6 +2,9 @@
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+
+#include "myprof.c"
 
 #define io_red "\x1b[31m"
 #define io_green "\x1b[32m"
@@ -69,6 +72,8 @@ int main(int argc, char *argv[]){
             chdir(args[1]);
         else if (strcmp(args[0],"exit") == 0)
             exit(0);
+        else if (strcmp(args[0],"myprof") == 0)
+            myprof(i,args);
         else{
             c_pid = fork();
             if (c_pid==0){
@@ -86,7 +91,7 @@ int main(int argc, char *argv[]){
     }
 }
 
-
+/*
 void ejecutarPipe(char** comando, char** comandoPostPipe){
     //pipefd[0] es para leer, [1] es para escribir
     int pipefd[2]; 
@@ -130,7 +135,7 @@ void ejecutarPipe(char** comando, char** comandoPostPipe){
 
             /*NOTA: Para tener pipes "ilimitados", deberiamos llamar nuevamente a la función ejecutarPipe, pero
             parseando correctamente a la string para ver si es que es necesario usar pipes o este es el ultimo comando*/
-
+/*
             execvp(parsed[0], parsed);
             //Si es que el codigo continua aqui, es que el execvp no se realizó correctamente
             char* error_Comando_ReadP = io_red"error: Could not execute pipe command (read)\n";
@@ -146,4 +151,4 @@ void ejecutarPipe(char** comando, char** comandoPostPipe){
 
     }
 
-}
+}*/
