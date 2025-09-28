@@ -158,13 +158,19 @@ int main(int argc, char *argv[]){
         //Parsea los comandos y argumentos de cada comando separado por pipe
         char** comandosSeparados;
         int cantidadPipes = dividirPipe(buffer, &comandosSeparados);
-        char*** comandosParaPipe = malloc(cantidadPipes * sizeof(char**));
-        for (int j = 0; j < cantidadPipes; j++) {
-            int numArgs;
-            comandosParaPipe[j] = parse(comandosSeparados[j], &numArgs);
-        }
+
         //si es que el prompt tiene pipes
-        if (cantidadPipes>1) {ejecutarPipe(comandosParaPipe, cantidadPipes);}
+        if (cantidadPipes>1) {
+            char***comandosParaPipe= malloc(cantidadPipes * sizeof(char**));
+            for (int j = 0; j < cantidadPipes; j++) {
+                int numArgs;
+                comandosParaPipe[j] = parse(comandosSeparados[j], &numArgs);
+            }
+            ejecutarPipe(comandosParaPipe, cantidadPipes);
+            for (int j = 0; j < cantidadPipes; j++) free(comandosParaPipe[j]);
+            free(comandosParaPipe);
+
+        }
         else{
             //parse
             int i=0;
@@ -192,12 +198,7 @@ int main(int argc, char *argv[]){
             }
             if (args) free(args);
         }
-
         if (buffer) free(buffer);
-        for (int j = 0; j < cantidadPipes; j++) {
-            free(comandosParaPipe[j]);
-        }
         free(comandosSeparados);
-        free(comandosParaPipe);
     }
 }
