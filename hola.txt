@@ -1,6 +1,0 @@
-echo hola 
-hola
-Real: 0.007408s | User: 0.000000s | System: 0.004199s | MaxRSS: 1772 KB
-arrozecho jamon 
-jamon
-Real: 0.010414s | User: 0.004868s | System: 0.002434s | MaxRSS: 1916 KB

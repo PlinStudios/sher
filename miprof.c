@@ -120,7 +120,7 @@ int miprof(int argc, char *argv[]){
         double sys = usage.ru_stime.tv_sec + usage.ru_stime.tv_usec/1000000.0;
 
         sorted=read_sorted_flag();
-        if (sorted==1){
+        /*if (sorted==1){
             const char *file_to_sort = argv[argc - 1];
             long file_size = getFileSize(file_to_sort);
             if (file_size != -1) {
@@ -133,7 +133,7 @@ int miprof(int argc, char *argv[]){
             index++;
             sorted=0;
             save_sorted_flag(0);
-        }
+        }*/
 
         dprintf(fd,"Real: %fs | User: %fs | System: %fs | MaxRSS: %ld KB\n", real, user, sys, usage.ru_maxrss);
 
